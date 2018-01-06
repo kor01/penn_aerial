@@ -42,8 +42,6 @@ F = m * (g + rc(3));
 k_av = 200; k_ap = 1000;
 M = params.I * (-k_av * state.omega + k_ap * (rot_c - state.rot));
 %M = [0.1, 0.1, 0.1]';
-%M = zeros(3, 1);
-
 % =================== Your code ends here ===================
 
 end
