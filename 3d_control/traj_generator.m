@@ -29,32 +29,33 @@ function [ desired_state ] = traj_generator(t, state, waypoints)
 % using a constant velocity of 0.5 m/s. Note that this is only a sample, and you
 % should write your own trajectory generator for the submission.
 
-persistent waypoints0 traj_time d0
-if nargin > 2
-    d = waypoints(:,2:end) - waypoints(:,1:end-1);
-    d0 = 2 * sqrt(d(1,:).^2 + d(2,:).^2 + d(3,:).^2);
-    traj_time = [0, cumsum(d0)];
-    waypoints0 = waypoints;
-else
-    if(t > traj_time(end))
-        t = traj_time(end);
-    end
-    t_index = find(traj_time >= t,1);
 
-    if(t_index > 1)
-        t = t - traj_time(t_index-1);
-    end
-    if(t == 0)
-        desired_state.pos = waypoints0(:,1);
-    else
-        scale = t/d0(t_index-1);
-        desired_state.pos = (1 - scale) * waypoints0(:,t_index-1) + scale * waypoints0(:,t_index);
-    end
-    desired_state.vel = zeros(3,1);
-    desired_state.acc = zeros(3,1);
-    desired_state.yaw = 0;
-    desired_state.yawdot = 0;
-end
+% persistent waypoints0 traj_time d0
+% if nargin > 2
+%     d = waypoints(:,2:end) - waypoints(:,1:end-1);
+%     d0 = 2 * sqrt(d(1,:).^2 + d(2,:).^2 + d(3,:).^2);
+%     traj_time = [0, cumsum(d0)];
+%     waypoints0 = waypoints;
+% else
+%     if(t > traj_time(end))
+%         t = traj_time(end);
+%     end
+%     t_index = find(traj_time >= t,1);
+% 
+%     if(t_index > 1)
+%         t = t - traj_time(t_index-1);
+%     end
+%     if(t == 0)
+%         desired_state.pos = waypoints0(:,1);
+%     else
+%         scale = t/d0(t_index-1);
+%         desired_state.pos = (1 - scale) * waypoints0(:,t_index-1) + scale * waypoints0(:,t_index);
+%     end
+%     desired_state.vel = zeros(3,1);
+%     desired_state.acc = zeros(3,1);
+%     desired_state.yaw = 0;
+%     desired_state.yawdot = 0;
+% end
 %
 
 %% Fill in your code here
@@ -64,7 +65,26 @@ end
 % desired_state.acc = zeros(3,1);
 % desired_state.yaw = 0;
 
+persistent coeffs num_traj;
 
+scale = 4;
+
+if nargin > 2
+    
+    coeffs = waypoint_traj_solver(waypoints);
+    num_traj = size(waypoints, 2) - 1;
+    
+else
+    [traj_idx, rel_t] = get_traj_idx(t, num_traj, scale);
+    coeff = squeeze(coeffs(:, traj_idx, :));
+    [pos, vel, acc, yaw, yaw_dot] = ...
+        eval_snap_equation(rel_t, coeff, scale);
+    desired_state.pos = pos;
+    desired_state.vel = vel;
+    desired_state.acc = acc;
+    desired_state.yaw = yaw;
+    desired_state.yawdot = yaw_dot;
+end
 
 end
 

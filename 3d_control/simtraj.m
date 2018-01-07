@@ -1,13 +1,8 @@
+
 close all;
 clear;
 
-
 addpath('utils');
-
-
-%% pre-calculated trajectories
-%trajhandle = @traj_line;
-trajhandle = @traj_helix;
 
 %% Trajectory generation with waypoints
 %% You need to implement this
@@ -17,9 +12,7 @@ waypoints = [0    0   0;
              2    0   2;
              3    -1  1;
              4    0   0]';
-% waypoints = [0    0   0;
-%              1    1   1]'; 
-         
+
 trajhandle([],[],waypoints);
 
 %% controller

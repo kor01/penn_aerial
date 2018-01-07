@@ -22,12 +22,13 @@ function [F, M] = controller(t, state, des_state, params)
 
 m = params.mass; g = params.gravity;
 
-kp = 25; kv = 10;
+kp = [20, 20, 25]'; kv = [10, 10, 10]';
 
 
 %% target acceleration
-rc = des_state.acc + kv * (des_state.vel - state.vel) ...
-    + kp * (des_state.pos - state.pos);
+rc = des_state.acc + kv .* (des_state.vel - state.vel) ...
+    + kp .* (des_state.pos - state.pos);
+
 
 %% target rotation
 psi = state.rot(3);
@@ -39,9 +40,14 @@ rot_c = [rot_c; des_state.yaw];
 F = m * (g + rc(3));
 
 % Moment, large k values makes attitude controller more sensitive
-k_av = 200; k_ap = 1000;
-M = params.I * (-k_av * state.omega + k_ap * (rot_c - state.rot));
+k_av = [200, 200, 200]'; k_ap = [1000, 1000, 1000]';
+M = params.I * (-k_av .* state.omega + k_ap .* (rot_c - state.rot));
 %M = [0.1, 0.1, 0.1]';
 % =================== Your code ends here ===================
+
+vel_diff = des_state.vel - state.vel;
+pos_diff = des_state.pos - state.pos;
+omega_diff = state.omega;
+angle_diff = rot_c - state.rot;
 
 end
